@@ -2,7 +2,7 @@ package fr.cytech.icc
 
 import java.time.OffsetDateTime
 import java.util.UUID
-import scala.collection.immutable.SortedSet
+import scala.collection.SortedSet
 
 import org.apache.pekko.actor.typed.{ ActorRef, Behavior }
 import org.apache.pekko.actor.typed.scaladsl.Behaviors
@@ -23,13 +23,16 @@ case class RoomActor(name: String) {
   private def handle(posts: SortedSet[Post]): Behavior[Message] = {
     Behaviors.receiveMessage {
       case Message.CreatePost(author, content) =>
-        ???
+        handle(posts + Post(UUID.randomUUID(), author = author, postedAt = OffsetDateTime.now(), content = content))
       case Message.ListPosts(replyTo) =>
-        ???
+        replyTo ! posts
+        Behaviors.same
       case Message.LatestPost(replyTo) =>
-        ???
+        replyTo ! Some(posts.last)
+        Behaviors.same
       case Message.GetPost(id, replyTo) =>
-        ???
+        replyTo ! posts.find(p => p.id == id)
+        Behaviors.same
 
     }
   }
